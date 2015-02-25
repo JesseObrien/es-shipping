@@ -4,19 +4,23 @@ import (
 	"time"
 )
 
-type BaseEvent struct {
+type EventTime struct {
 	Occurred time.Time
 	Recorded time.Time
 }
 
 type DepartureEvent struct {
-	Base BaseEvent
+	Time EventTime
 	Port Port
 	Ship Ship
 }
 
 func NewDepartureEvent(t time.Time, p Port, s Ship) *DepartureEvent {
-	return &DepartureEvent{Base: BaseEvent{Occurred: t}, Port: p, Ship: s}
+	return &DepartureEvent{
+		Time: EventTime{Occurred: t},
+		Port: p,
+		Ship: s,
+	}
 }
 
 func (de *DepartureEvent) Process() {
@@ -24,35 +28,48 @@ func (de *DepartureEvent) Process() {
 }
 
 type ArrivalEvent struct {
-	Time time.Time
+	Time EventTime
 	Port Port
 	Ship Ship
 }
 
 func NewArrivalEvent(t time.Time, p Port, s Ship) *ArrivalEvent {
-	return &ArrivalEvent{Time: t, Port: p, Ship: s}
+	return &ArrivalEvent{
+		Time: EventTime{Occurred: t},
+		Port: p,
+		Ship: s,
+	}
 }
 
 func (ae *ArrivalEvent) Process() {
 	ae.Ship.handleArrival(ae)
 }
 
-type LoadEvent struct {
+type CargoEvent struct {
 	Id   int
-	Time time.Time
 	Ship Ship
 }
 
-func NewLoadEvent(id int, t time.Time, s Ship) *LoadEvent {
-	return &LoadEvent{Id: id, Time: t, Ship: s}
+type LoadCargoEvent struct {
+	Time  EventTime
+	Cargo CargoEvent
 }
 
-type UnloadEvent struct {
-	Id   int
-	Time time.Time
-	Ship Ship
+func NewLoadCargoEvent(id int, t time.Time, s Ship) *LoadCargoEvent {
+	return &LoadCargoEvent{
+		Time:  EventTime{Occurred: t},
+		Cargo: CargoEvent{Id: id, Ship: s},
+	}
 }
 
-func NewUnloadEvent(id int, t time.Time, s Ship) *UnloadEvent {
-	return &UnloadEvent{Id: id, Time: t, Ship: s}
+type UnloadCargoEvent struct {
+	Time  EventTime
+	Cargo CargoEvent
+}
+
+func NewUnloadCargoEvent(id int, t time.Time, s Ship) *UnloadCargoEvent {
+	return &UnloadCargoEvent{
+		Time:  EventTime{Occurred: t},
+		Cargo: CargoEvent{Id: id, Ship: s},
+	}
 }
